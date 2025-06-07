@@ -1,1 +1,2 @@
 # TreasureHunter
+TreasureHunter is an exciting application designed to help users embark on a quest to find hidden gold treasures. This project demonstrates the process of developing a treasure-hunting app, from conceptualization to implementation. Whether you're interested in map-based exploration, puzzle-solving, or learning about geolocation technologies, TreasureHunter provides a hands-on experience in building an engaging and interactive application.

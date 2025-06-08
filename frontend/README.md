@@ -1,70 +1,115 @@
-# Getting Started with Create React App
+# Hướng dẫn cài đặt và chạy dự án Treasure Hunter
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Yêu cầu hệ thống
 
-## Available Scripts
+- Node.js phiên bản 18
+- .NET 8 SDK
+- Cổng server backend: 8386
 
-In the project directory, you can run:
+## Mô tả bài toán
 
-### `npm start`
+Bạn hãy viết code C# (backend) và React (frontend, ưu tiên dùng thư viện Material-UI) để giải quyết bài toán bên dưới. Thông tin input được nhập và lưu vào database để có thể xem và giải lại. Hiển thị input nhập ma trận theo thông tin n, m và có validation.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### Tìm kho báu
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+Đoàn hải tặc tìm thấy một bản đồ kho báu, tuy nhiên để đến được kho báu thì phải vượt qua được thử thách. Vùng biển chứa kho báu là một ma trận các hòn đảo n hàng m cột, mỗi đảo có một chiếc rương đánh dấu bởi một số nguyên dương trong khoảng từ 1 đến p (tạm gọi là số x), và nó sẽ chứa chìa khoá cho chiếc rương đánh số x + 1. Và chỉ có chiếc rương được đánh số p (và là số lớn nhất) là chứa kho báu.
 
-### `npm test`
+Để đi từ hòn đảo (x1:y1) đến đảo (x2:y2) cần một lượng nhiên liệu là √(x1 − x2)^2 + (y1 − y2)^2.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Hải tặc đang ở hòn đảo (1:1) - hàng 1 cột 1 và đã có sẵn chìa khoá số 0. Với việc cần tiết kiệm nhiên liệu để trở về, hãy tính lượng nhiên liệu ít nhất để lấy được kho báu. Biết rằng luôn có đường dẫn đến kho báu.
 
-### `npm run build`
+#### Input:
+- 3 số nguyên dương n, m, p (1 <= n, m <= 500 , 1 <= p <= n*m) – lần lượt là số hàng, số cột của ma trận và số p – số loại rương có thể có trên ma trận
+- Ma trận n hàng m cột, mỗi vị trí là một số nguyên biểu thị ma trận kho báu : a[i][j] (1 <= a[i][j] <= p) là số thứ tự của rương trong mỗi hòn đảo. Và chỉ có một hòn đảo chứa rương đánh số p.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+#### Output:
+Một số thực là lượng nhiên liệu nhỏ nhất mà hải tặc cần có để lấy được rương kho báu.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+#### Ví dụ:
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Test 1:
+```
+n: 3
+m: 3
+p: 3
+3 2 2
+2 2 2
+2 2 1
+Output: 4√2 = 5.65685
+```
 
-### `npm run eject`
+Test 2:
+```
+n: 3
+m: 4
+p: 3
+2 1 1 1
+1 1 1 1
+2 1 1 3
+Output: 5
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+Test 3:
+```
+n: 3
+m: 4
+p: 12
+1 2 3 4
+8 7 6 5
+9 10 11 12
+Output: 11
+```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+---
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## Hướng dẫn cài đặt và chạy dự án
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+### 1. Cài đặt Backend (.NET 8)
 
-## Learn More
+1. Cài đặt .NET 8 SDK từ https://dotnet.microsoft.com/en-us/download/dotnet/8.0
+2. Mở terminal, di chuyển vào thư mục backend (hoặc nơi chứa mã nguồn backend):
+   ```sh
+   cd <thu-muc-backend>
+   ```
+3. Khôi phục các package:
+   ```sh
+   dotnet restore
+   ```
+4. Chạy ứng dụng backend trên cổng 8386:
+   ```sh
+   dotnet run --urls "http://localhost:8386"
+   ```
+   > Lưu ý: Đảm bảo API chạy trên http://localhost:8386
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### 2. Cài đặt Frontend (React + Material-UI)
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+1. Cài đặt Node.js phiên bản 18 từ https://nodejs.org/en/download/releases
+2. Mở terminal, di chuyển vào thư mục frontend:
+   ```sh
+   cd frontend
+   ```
+3. Cài đặt các package:
+   ```sh
+   npm install
+   ```
+4. Chạy ứng dụng frontend:
+   ```sh
+   npm start
+   ```
+5. Truy cập ứng dụng tại http://localhost:3000
 
-### Code Splitting
+### 3. Cấu hình kết nối API
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+- Đảm bảo file cấu hình hoặc các lệnh gọi API trong frontend trỏ đúng về http://localhost:8386
+- Nếu thay đổi cổng backend, cần sửa lại endpoint trong mã nguồn React cho khớp.
 
-### Analyzing the Bundle Size
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+## Ghi chú
+- Đảm bảo backend chạy trước khi thao tác trên frontend.
+- Khi nhập ma trận, cần nhập đúng số hàng (n), số cột (m) và số loại rương (p) theo yêu cầu đề bài.
+- Ứng dụng sử dụng Material-UI để hiển thị giao diện nhập liệu và kết quả.
+- Dữ liệu nhập sẽ được lưu vào database để có thể xem lại và giải lại bài toán.
 
-### Making a Progressive Web App
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)

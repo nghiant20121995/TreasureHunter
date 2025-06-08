@@ -2,8 +2,8 @@
 {
     public class CreateTreasureReponse
     {
-        public double EnergyConsumed { get; set; }
+        public double FuelConsumed { get; set; }
 
-        public object Instruction { get; set; }
+        public string Instruction { get; set; }
     }
 }

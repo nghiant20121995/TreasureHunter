@@ -9,9 +9,9 @@ import treasureIcon from './treasure.svg'; // Adjust the path as necessary
 const treasureService = new TreasureDataService();
 
 const board = [
+  [3, 2, 2],
   [2, 2, 2],
-  [3, 2, 1],
-  [6, 5, 4]
+  [2, 2, 1]
 ];
 
 const tileColors = {
@@ -44,7 +44,8 @@ export default function GameBoard() {
   const [boardState, setBoardState] = React.useState(board);
   const [width, setWidth] = React.useState(board[0].length);
   const [height, setHeight] = React.useState(board.length);
-  const [treasureNumber, setTreasureNumber] = React.useState(1);
+  const [treasureNumber, setTreasureNumber] = React.useState(3);
+  const [apiMessage, setApiMessage] = React.useState("");
 
   const handleChange = (i, j, value, e) => {
     if (!value || isNaN(value) || value <= 0) {
@@ -95,10 +96,15 @@ export default function GameBoard() {
 
   const handleSubmit = async () => {
     try {
-      await treasureService.post("https://localhost:7106/api/treasure", { IsLands: boardState, TreasureNumber: treasureNumber });
-      alert("Board submitted to treasure API!");
+      setApiMessage("Đang gửi dữ liệu...");
+      var rs = await treasureService.post("https://localhost:8386/api/treasure", { IsLands: boardState, TreasureNumber: treasureNumber });
+      if (rs) {
+        setApiMessage("Năng lượng tối ưu để tim kho báu: " + rs.fuelConsumed);
+      } else {
+        setApiMessage("Unexpected response from API.");
+      }
     } catch (error) {
-      alert("Failed to submit board: " + error.message);
+      setApiMessage("Failed to submit board: " + error.message);
     }
   };
 
@@ -119,6 +125,46 @@ export default function GameBoard() {
         boxShadow: '0 8px 80px 0 #ffffff',
       }}
     >
+      {apiMessage && (
+        <Box
+          sx={{
+            background: '#fffbe7',
+            color: '#a80038',
+            fontWeight: 'bold',
+            mb: 4,
+            textAlign: 'center',
+            borderRadius: 4,
+            p: 3,
+            boxShadow: '0 8px 40px 0 rgba(246, 65, 108, 0.18), 0 2px 16px 0 #fffbe7',
+            letterSpacing: 1.5,
+            fontSize: 26,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 2,
+            minHeight: 64,
+            maxWidth: 600,
+            mx: 'auto',
+            mt: 3,
+            border: '3px solid #ffe066',
+            transition: 'all 0.3s',
+            position: 'relative',
+            zIndex: 10,
+            animation: 'pop-in 0.5s cubic-bezier(.68,-0.55,.27,1.55)'
+          }}
+        >
+          <span role="img" aria-label="celebrate" style={{fontSize: 38, marginRight: 16, filter: 'drop-shadow(0 2px 4px #ffe066)'}}>🎉</span>
+          {apiMessage}
+        </Box>
+      )}
+      {/* Add pop-in animation */}
+      <style>{`
+        @keyframes pop-in {
+          0% { transform: scale(0.7); opacity: 0; }
+          80% { transform: scale(1.1); opacity: 1; }
+          100% { transform: scale(1); opacity: 1; }
+        }
+      `}</style>
       <Box sx={{ mb: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
         <span style={{ color: '#fff', fontSize: 14 }}>Chiều ngang:</span>
         <TextField

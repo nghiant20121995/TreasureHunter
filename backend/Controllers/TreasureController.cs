@@ -45,6 +45,8 @@ namespace WebApplication1.Controllers
                                        .FirstOrDefault();
 
             var result = new CreateTreasureReponse();
+            result.FuelConsumed = minDistance?.TotalDistance ?? 0.0;
+            result.Instruction = minDistance?.Instruction ?? string.Empty;
 
 
             return result;

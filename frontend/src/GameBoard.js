@@ -113,14 +113,14 @@ export default function GameBoard() {
         display: "inline-block",
         background: "#bbada0",
         p: 3,
-        borderRadius: 2,
+        borderRadius: 10,
         minWidth: 140,
         minHeight: 140,
-        boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.37)',
+        boxShadow: '0 8px 80px 0 #ffffff',
       }}
     >
       <Box sx={{ mb: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
-        <span style={{ color: '#fff', fontSize: 14 }}>Độ dài:</span>
+        <span style={{ color: '#fff', fontSize: 14 }}>Chiều ngang:</span>
         <TextField
           type="number"
           size="small"
@@ -141,7 +141,7 @@ export default function GameBoard() {
           }}
           sx={{ background: '#eee4da', borderRadius: 1 }}
         />
-        <span style={{ color: '#fff', fontSize: 14 }}>Độ rộng:</span>
+        <span style={{ color: '#fff', fontSize: 14 }}>Chiều dọc:</span>
         <TextField
           type="number"
           size="small"
@@ -162,7 +162,7 @@ export default function GameBoard() {
           }}
           sx={{ background: '#eee4da', borderRadius: 1 }}
         />
-        <span style={{ color: '#fff', fontSize: 14 }}>Kho báu:</span>
+        <span style={{ color: '#fff', fontSize: 14 }}>Kho báu số:</span>
         <TextField
           type="number"
           size="small"

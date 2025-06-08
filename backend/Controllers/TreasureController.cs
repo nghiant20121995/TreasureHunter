@@ -26,51 +26,61 @@ namespace WebApplication1.Controllers
             var dicChest = GetChests(req.IsLands, req.TreasureNumber);
 
             var isLandHasTreasure = FindTreasurePosition(req.TreasureNumber, dicChest);
-            var distances = new Dictionary<int, Distance>();
-
-            for (var i = 0; i < req.TreasureNumber; i++)
+            var distances = new List<Distance>();
+            var beginningChest = new IsLand()
             {
-                var nextChest = i + 1;
-                if (!dicChest.ContainsKey(nextChest))
-                {
-                    throw new KeyNotFoundException($"Chest number {nextChest} not found in IsLands.");
-                }
+                ChestNumber = 0,
+                Id = 0,
+                PositionX = 1,
+                PositionY = 1
+            };
+            dicChest.Add(0, new List<IsLand> { beginningChest });
 
-                var shorestEnergyConsumed = 0.0;
-                var currentPositionX = 1;
-                var currentPositionY = 1;
-                if (distances.ContainsKey(i))
-                {
-                    shorestEnergyConsumed = distances[i].ShortestDistance;
-                    currentPositionX = distances[i].ToPositionX;
-                    currentPositionY = distances[i].ToPositionY;
-                }
+            var instruction = string.Empty;
 
-                var newDistance = new Distance
-                {
-                    FromPosition = 0,
-                    ToPosition = nextChest,
-                    ShortestDistance = 0
-                };
+            CalculateMinFuelConsumed(0, 1, 1, req.TreasureNumber, dicChest, distances, ref instruction);
 
-
-                foreach (var island in dicChest[nextChest])
-                {
-                    var nextEnergyConsumed = shorestEnergyConsumed + CalculateEnergyConsumed(currentPositionX, currentPositionY, island.PositionX, island.PositionY);
-                    if (newDistance.ShortestDistance < nextEnergyConsumed)
-                    {
-                        newDistance.ShortestDistance = nextEnergyConsumed;
-                        newDistance.ToPositionX = island.PositionX;
-                        newDistance.ToPositionY = island.PositionY;
-                    }
-                }
-                distances.Add(nextChest, newDistance);
-            }
+            var minDistance = distances.Where(e => e.ToPosition == req.TreasureNumber)
+                                       .OrderBy(e => e.TotalDistance)
+                                       .FirstOrDefault();
 
             var result = new CreateTreasureReponse();
 
 
             return result;
+        }
+
+
+        private void CalculateMinFuelConsumed(int currentChest, int fromX, int fromY, int treasureNumber, Dictionary<int, List<IsLand>> dicChest, List<Distance> distances, ref string instruction, double minFuelConsumed = 0.0)
+        {
+            var nextChest = currentChest + 1;
+            if (nextChest > treasureNumber) return;
+            foreach (var toIsland in dicChest[nextChest])
+            {
+                double fuel = CalculateEnergyConsumed(fromX, fromY, toIsland.PositionX, toIsland.PositionY);
+                double totalFuel = minFuelConsumed + fuel;
+                var newDistance = new Distance
+                {
+                    FromPosition = currentChest,
+                    ToPosition = nextChest,
+                    D = fuel,
+                    FromX = fromX,
+                    FromY = fromY,
+                    ToX = toIsland.PositionX,
+                    ToY = toIsland.PositionY
+                };
+                instruction += $"({newDistance.FromX}-{newDistance.FromY})->({newDistance.ToX}-{newDistance.ToY})||";
+                if (nextChest == treasureNumber)
+                {
+                    newDistance.TotalDistance = totalFuel;
+                    newDistance.Instruction = string.Concat(instruction, "");
+                    instruction = string.Empty;
+                    // Here you can store or process the final distance to the treasure
+                    _logger.LogInformation($"Total distance to treasure {treasureNumber} from chest {currentChest}: {newDistance.TotalDistance}");
+                }
+                distances.Add(newDistance);
+                CalculateMinFuelConsumed(nextChest, toIsland.PositionX, toIsland.PositionY, treasureNumber, dicChest, distances, ref instruction, totalFuel);
+            }
         }
 
 
@@ -99,8 +109,8 @@ namespace WebApplication1.Controllers
                     if (matrix[i][j] < 0 || matrix[i][j] > treasureNumber) continue;
                     var newIsLand = new IsLand
                     {
-                        PositionX = i,
-                        PositionY = j,
+                        PositionX = i + 1,
+                        PositionY = j + 1,
                         ChestNumber = matrix[i][j]
                     };
                     if (dic.ContainsKey(matrix[i][j]))
@@ -122,12 +132,6 @@ namespace WebApplication1.Controllers
             var deltaX = Math.Abs(fromPositionX - toPositionX);
             var deltaY = Math.Abs(fromPositionY - toPositionY);
             return Math.Sqrt(Math.Pow(deltaX, 2) + Math.Pow(deltaY, 2));
-        }
-
-
-        private void ValidateIsLands(int[][] isLands)
-        {
-            if (isLands == null) throw new ArgumentNullException(nameof(isLands));
         }
     }
 }

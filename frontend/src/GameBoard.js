@@ -97,7 +97,7 @@ export default function GameBoard() {
   const handleSubmit = async () => {
     try {
       setApiMessage("Đang gửi dữ liệu...");
-      var rs = await treasureService.post("https://localhost:8386/api/treasure", { IsLands: boardState, TreasureNumber: treasureNumber });
+      var rs = await treasureService.post("http://localhost:8386/api/treasure", { IsLands: boardState, TreasureNumber: treasureNumber });
       if (rs) {
         setApiMessage("Năng lượng tối ưu để tim kho báu: " + rs.fuelConsumed);
       } else {

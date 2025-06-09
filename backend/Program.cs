@@ -21,8 +21,6 @@ app.UseCors("AllowAll");
 
 // Configure the HTTP request pipeline.
 
-app.UseHttpsRedirection();
-
 app.UseAuthorization();
 
 app.MapControllers();

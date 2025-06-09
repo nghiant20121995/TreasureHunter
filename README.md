@@ -1,10 +1,17 @@
 # Hướng dẫn cài đặt và chạy dự án Treasure Hunter
 
-## Yêu cầu hệ thống
+---
 
-- Node.js phiên bản 18
-- .NET 8 SDK
-- Cổng server backend: 8386
+## Hướng dẫn cài đặt và chạy dự án
+
+- Mở terminal tại thư mục chứa file docker-compose.yml.
+- Chạy lệnh sau:
+- docker compose up --build
+- Docker sẽ tự động build và khởi động cả frontend và backend.
+- Sau khi hoàn tất, truy cập frontend tại: http://localhost:1006
+- API backend sẽ chạy tại: http://localhost:8386/api/ping
+---
+
 
 ## Mô tả bài toán
 
@@ -74,17 +81,6 @@ Output: 11
 ```
 
 ---
-
-## Hướng dẫn cài đặt và chạy dự án
-
-- Mở terminal tại thư mục chứa file docker-compose.yml.
-- Chạy lệnh sau:
-- docker compose up --build
-- Docker sẽ tự động build và khởi động cả frontend và backend.
-- Sau khi hoàn tất, truy cập frontend tại: http://localhost:1006
-- API backend sẽ chạy tại: http://localhost:8386/api/ping
----
-
 ## Ghi chú
 - Đảm bảo backend chạy trước khi thao tác trên frontend.
 - Khi nhập ma trận, cần nhập đúng số hàng (n), số cột (m) và số loại rương (p) theo yêu cầu đề bài.

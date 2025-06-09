@@ -10,6 +10,6 @@
         public int ToX { get; set; }
         public int ToY { get; set; }
         public double TotalDistance { get; set; }
-        public string Instruction { get; set; }
+        public string? Instruction { get; set; }
     }
 }

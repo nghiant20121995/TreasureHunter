@@ -1,10 +1,16 @@
-﻿namespace TreasureHunter.API.Entities
+﻿using MongoDB.Bson.Serialization.Attributes;
+
+namespace TreasureHunter.API.Entities
 {
     public class Board
     {
-        public int Id { get; set; }
-        public string Map {  get; set; }
+        [BsonId]
+        public string Id { get; set; }
+        public string? Map {  get; set; }
         public int TreasureNumber {  get; set; }
-        public List<Distance> Distances { get; set; }
+        public List<Distance>? Distances { get; set; }
+        public Distance? MinDistance { get; set; }
+        public DateTime CreatedDate { get; set; } = DateTime.UtcNow;
+        public DateTime? ModifiedDate { get; set; }
     }
 }

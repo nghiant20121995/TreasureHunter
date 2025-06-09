@@ -13,6 +13,7 @@ function App() {
     }}>
       <header className="App-header">
         <GameBoard />
+
       </header>
     </div>
   );

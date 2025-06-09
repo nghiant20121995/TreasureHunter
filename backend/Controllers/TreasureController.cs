@@ -1,5 +1,6 @@
 ﻿using FlamboyantFnb.Controllers;
 using Microsoft.AspNetCore.Mvc;
+using MongoDB.Driver;
 using System.Text.Json;
 using TreasureHunter.API.Entities;
 using TreasureHunter.API.RequestModel;
@@ -9,21 +10,28 @@ namespace WebApplication1.Controllers
     public class TreasureController : BaseController
     {
         private readonly ILogger<TreasureController> _logger;
-        private readonly IConfiguration _configuration;
+        private readonly IMongoCollection<Board> _boardCollection;
 
-        public TreasureController(IConfiguration configuration, ILogger<TreasureController> logger) : base(configuration)
+        public TreasureController(IConfiguration configuration, ILogger<TreasureController> logger, IMongoDatabase mongoDatabase) : base(configuration)
         {
             _logger = logger;
-            _configuration = configuration;
+            _boardCollection = mongoDatabase.GetCollection<Board>("Board");
+        }
+
+        [HttpGet]
+        public async Task<List<Board>> Get()
+        {
+            var boards = await _boardCollection.Find(_ => true).SortByDescending(e => e.CreatedDate).ToListAsync();
+            return boards;
         }
 
         [HttpPost]
-        public CreateTreasureReponse Post(CreateTreasureReq req)
+        public async Task<Board> Post(CreateTreasureReq req)
         {
             ValidateIslands(req);
             ValidateTreasureNumber(req);
 
-            var dicChest = GetChests(req.IsLands, req.TreasureNumber);
+            var dicChest = GetChests(req.IsLands!, req.TreasureNumber);
 
             ValidateTreasurePosition(req.TreasureNumber, dicChest);
             var distances = new List<Distance>();
@@ -36,26 +44,25 @@ namespace WebApplication1.Controllers
             };
             dicChest.Add(0, new List<IsLand> { beginningChest });
 
-            RecursiveCalculateMinFuelConsumed(0, 1, 1, req.TreasureNumber, dicChest, distances, string.Empty);
+            RecursiveCalculateMinFuelConsumed(0, 1, 1, req.TreasureNumber, dicChest, distances, "|1,1|");
 
             var minDistance = distances.Where(e => e.ToPosition == req.TreasureNumber)
                                        .OrderBy(e => e.TotalDistance)
                                        .FirstOrDefault();
-            minDistance.Instruction = minDistance.Instruction.Trim('|');
+            minDistance!.Instruction = minDistance.Instruction;
 
             var newBoard = new Board()
             {
+                Id = Guid.NewGuid().ToString(),
                 Map = JsonSerializer.Serialize(dicChest),
                 Distances = distances,
-                TreasureNumber = req.TreasureNumber
+                TreasureNumber = req.TreasureNumber,
+                MinDistance = minDistance
             };
 
-            var result = new CreateTreasureReponse();
-            result.FuelConsumed = minDistance?.TotalDistance ?? 0.0;
-            result.Instruction = minDistance?.Instruction ?? string.Empty;
+            await _boardCollection.InsertOneAsync(newBoard);
 
-
-            return result;
+            return newBoard;
         }
 
 
@@ -78,7 +85,7 @@ namespace WebApplication1.Controllers
             {
                 double fuel = CalculateFuelConsumed(fromX, fromY, toIsland.PositionX, toIsland.PositionY);
                 double totalFuel = minFuelConsumed + fuel;
-                var newInstruction = instruction + $"{fromX},{fromY}|";
+                var newInstruction = instruction + $"{toIsland.PositionX},{toIsland.PositionY}|";
 
                 var newDistance = new Distance
                 {

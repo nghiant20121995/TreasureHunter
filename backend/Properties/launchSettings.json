@@ -24,7 +24,7 @@
       "dotnetRunMessages": true,
       "launchBrowser": true,
       "launchUrl": "api/ping",
-      "applicationUrl": "https://localhost:8386;http://localhost:5230",
+      "applicationUrl": "https://localhost:8387;http://localhost:5230",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }

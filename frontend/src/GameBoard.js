@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import Paper from "@mui/material/Paper";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import TreasureDataService from "./dataservice/treasuredata.service";
 import treasureIcon from './treasure.svg'; // Adjust the path as necessary
+import BoardHistoryPanel from "./BoardHistoryPanel";
 
 const treasureService = new TreasureDataService();
 
@@ -46,6 +47,7 @@ export default function GameBoard() {
   const [height, setHeight] = React.useState(board.length);
   const [treasureNumber, setTreasureNumber] = React.useState(3);
   const [apiMessage, setApiMessage] = React.useState("");
+  const [instruction, setInstruction] = React.useState("");
 
   const handleChange = (i, j, value, e) => {
     if (!value || isNaN(value) || value <= 0) {
@@ -96,10 +98,12 @@ export default function GameBoard() {
 
   const handleSubmit = async () => {
     try {
+      setInstruction("");
       setApiMessage("Đang gửi dữ liệu...");
-      var rs = await treasureService.post("http://localhost:8386/api/treasure", { IsLands: boardState, TreasureNumber: treasureNumber });
+      let rs = await treasureService.post("http://localhost:8386/api/treasure", { IsLands: boardState, TreasureNumber: treasureNumber });
       if (rs) {
-        setApiMessage("Năng lượng tối ưu để tim kho báu: " + rs.fuelConsumed);
+        setApiMessage("Năng lượng tối ưu để tim kho báu: " + rs.minDistance.totalDistance);
+        setInstruction(rs.minDistance.instruction);
       } else {
         setApiMessage("Unexpected response from API.");
       }
@@ -113,203 +117,218 @@ export default function GameBoard() {
     setTreasureNumber(newTreasureNumber);
   }
 
+  const handleLoadBoard = (item) => {
+    setBoardState(item.isLands);
+    setWidth(item.isLands[0]?.length || 1);
+    setHeight(item.isLands.length || 1);
+    setTreasureNumber(item.treasureNumber);
+    setApiMessage("");
+    setInstruction("");
+  };
+
+  const IsMinDistance = (i, j) => {
+    return instruction && instruction.length > 0 && instruction.includes(`|${i},${j}|`);
+  };
+
   return (
-    <Box
-      sx={{
-        display: "inline-block",
-        background: "#bbada0",
-        p: 3,
-        borderRadius: 10,
-        minWidth: 140,
-        minHeight: 140,
-        boxShadow: '0 8px 80px 0 #ffffff',
-      }}
-    >
-      {apiMessage && (
-        <Box
-          sx={{
-            background: '#fffbe7',
-            color: '#a80038',
-            fontWeight: 'bold',
-            mb: 4,
-            textAlign: 'center',
-            borderRadius: 4,
-            p: 3,
-            boxShadow: '0 8px 40px 0 rgba(246, 65, 108, 0.18), 0 2px 16px 0 #fffbe7',
-            letterSpacing: 1.5,
-            fontSize: 26,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 2,
-            minHeight: 64,
-            maxWidth: 600,
-            mx: 'auto',
-            mt: 3,
-            border: '3px solid #ffe066',
-            transition: 'all 0.3s',
-            position: 'relative',
-            zIndex: 10,
-            animation: 'pop-in 0.5s cubic-bezier(.68,-0.55,.27,1.55)'
-          }}
-        >
-          <span role="img" aria-label="celebrate" style={{fontSize: 38, marginRight: 16, filter: 'drop-shadow(0 2px 4px #ffe066)'}}>🎉</span>
-          {apiMessage}
+    <>
+      <Box
+        sx={{
+          display: "inline-block",
+          background: "#bbada0",
+          p: 3,
+          borderRadius: 10,
+          minWidth: 140,
+          minHeight: 140,
+          boxShadow: '0 8px 80px 0 #ffffff',
+        }}
+      >
+        {apiMessage && (
+          <Box
+            sx={{
+              background: '#fffbe7',
+              color: '#a80038',
+              fontWeight: 'bold',
+              mb: 4,
+              textAlign: 'center',
+              borderRadius: 4,
+              p: 3,
+              boxShadow: '0 8px 40px 0 rgba(246, 65, 108, 0.18), 0 2px 16px 0 #fffbe7',
+              letterSpacing: 1.5,
+              fontSize: 26,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 2,
+              minHeight: 64,
+              maxWidth: 600,
+              mx: 'auto',
+              mt: 3,
+              border: '3px solid #ffe066',
+              transition: 'all 0.3s',
+              position: 'relative',
+              zIndex: 10,
+              animation: 'pop-in 0.5s cubic-bezier(.68,-0.55,.27,1.55)'
+            }}
+          >
+            <span role="img" aria-label="celebrate" style={{ fontSize: 38, marginRight: 16, filter: 'drop-shadow(0 2px 4px #ffe066)' }}>🎉</span>
+            {apiMessage}
+          </Box>
+        )}
+        {/* Add pop-in animation */}
+        <style>{`
+          @keyframes pop-in {
+            0% { transform: scale(0.7); opacity: 0; }
+            80% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+          }
+        `}</style>
+        <Box sx={{ mb: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
+          <span style={{ color: '#fff', fontSize: 14 }}>Chiều ngang:</span>
+          <TextField
+            type="number"
+            size="small"
+            value={width}
+            onChange={handleWidthChange}
+            inputProps={{
+              min: 1,
+              style: { width: 40, fontSize: 12, textAlign: 'center' },
+              onKeyDown: (e) => {
+                if (
+                  (e.key.length === 1 && !/[0-9]/.test(e.key)) ||
+                  e.key === '-' ||
+                  e.key === 'e'
+                ) {
+                  e.preventDefault();
+                }
+              }
+            }}
+            sx={{ background: '#eee4da', borderRadius: 1 }}
+          />
+          <span style={{ color: '#fff', fontSize: 14 }}>Chiều dọc:</span>
+          <TextField
+            type="number"
+            size="small"
+            value={height}
+            onChange={handleHeightChange}
+            inputProps={{
+              min: 1,
+              style: { width: 40, fontSize: 12, textAlign: 'center' },
+              onKeyDown: (e) => {
+                if (
+                  (e.key.length === 1 && !/[0-9]/.test(e.key)) ||
+                  e.key === '-' ||
+                  e.key === 'e'
+                ) {
+                  e.preventDefault();
+                }
+              }
+            }}
+            sx={{ background: '#eee4da', borderRadius: 1 }}
+          />
+          <span style={{ color: '#fff', fontSize: 14 }}>Kho báu số:</span>
+          <TextField
+            type="number"
+            size="small"
+            value={treasureNumber}
+            onChange={handleTreasureChange}
+            inputProps={{
+              min: 1,
+              style: { width: 40, fontSize: 12, textAlign: 'center' },
+              onKeyDown: (e) => {
+                if (
+                  (e.key.length === 1 && !/[0-9]/.test(e.key)) ||
+                  e.key === '-' ||
+                  e.key === 'e'
+                ) {
+                  e.preventDefault();
+                }
+              }
+            }}
+            sx={{ background: '#eee4da', borderRadius: 1 }}
+          />
+          <Button
+            variant="contained"
+            color="primary"
+            size="small"
+            sx={{ ml: 2 }}
+            onClick={handleSubmit}
+          >
+            Tìm kho báu
+          </Button>
         </Box>
-      )}
-      {/* Add pop-in animation */}
-      <style>{`
-        @keyframes pop-in {
-          0% { transform: scale(0.7); opacity: 0; }
-          80% { transform: scale(1.1); opacity: 1; }
-          100% { transform: scale(1); opacity: 1; }
-        }
-      `}</style>
-      <Box sx={{ mb: 1, display: 'flex', alignItems: 'center', gap: 1 }}>
-        <span style={{ color: '#fff', fontSize: 14 }}>Chiều ngang:</span>
-        <TextField
-          type="number"
-          size="small"
-          value={width}
-          onChange={handleWidthChange}
-          inputProps={{
-            min: 1,
-            style: { width: 40, fontSize: 12, textAlign: 'center' },
-            onKeyDown: (e) => {
-              if (
-                (e.key.length === 1 && !/[0-9]/.test(e.key)) ||
-                e.key === '-' ||
-                e.key === 'e'
-              ) {
-                e.preventDefault();
-              }
-            }
-          }}
-          sx={{ background: '#eee4da', borderRadius: 1 }}
-        />
-        <span style={{ color: '#fff', fontSize: 14 }}>Chiều dọc:</span>
-        <TextField
-          type="number"
-          size="small"
-          value={height}
-          onChange={handleHeightChange}
-          inputProps={{
-            min: 1,
-            style: { width: 40, fontSize: 12, textAlign: 'center' },
-            onKeyDown: (e) => {
-              if (
-                (e.key.length === 1 && !/[0-9]/.test(e.key)) ||
-                e.key === '-' ||
-                e.key === 'e'
-              ) {
-                e.preventDefault();
-              }
-            }
-          }}
-          sx={{ background: '#eee4da', borderRadius: 1 }}
-        />
-        <span style={{ color: '#fff', fontSize: 14 }}>Kho báu số:</span>
-        <TextField
-          type="number"
-          size="small"
-          value={treasureNumber}
-          onChange={handleTreasureChange}
-          inputProps={{
-            min: 1,
-            style: { width: 40, fontSize: 12, textAlign: 'center' },
-            onKeyDown: (e) => {
-              if (
-                (e.key.length === 1 && !/[0-9]/.test(e.key)) ||
-                e.key === '-' ||
-                e.key === 'e'
-              ) {
-                e.preventDefault();
-              }
-            }
-          }}
-          sx={{ background: '#eee4da', borderRadius: 1 }}
-        />
-        <Button
-          variant="contained"
-          color="primary"
-          size="small"
-          sx={{ ml: 2 }}
-          onClick={handleSubmit}
-        >
-          Tìm kho báu
-        </Button>
-      </Box>
-      {boardState.slice(0, height).map((row, i) => (
-        <Box key={i} sx={{ display: "flex" }}>
-          {row.slice(0, width).map((cell, j) => (
-            <Paper
-              key={j}
-              elevation={6}
-              sx={{
-                flex: 1,
-                aspectRatio: '1 / 1',
-                m: 0.1,
-                background: getTileColor(cell),
-                color: cell > 4 ? "#f9f6f2" : "#776e65",
-                fontSize: 40,
-                fontWeight: "bold",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                borderRadius: 1,
-                boxSizing: "border-box",
-                transition: "background 0.2s",
-                p: 0,
-                minWidth: 0,
-                ":hover": {
-                  background: cell > 0 ? "#f2b179" : "#cdc1b4",
-                  cursor: "pointer",
-                },
-                position: "relative",
-              }}
-            >
-              {cell === treasureNumber && (
-                <img src={treasureIcon} alt="Treasure" style={{ top: 0, right: 0, width: '20%', height: '20%', padding: '10px', display: 'block', position: 'absolute', margin: '0 auto 12px auto' }} />
-              )}
-              <div
-                contentEditable
-                suppressContentEditableWarning
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  outline: "none",
-                  border: "none",
-                  background: "transparent",
-                  textAlign: "center",
+        {boardState.slice(0, height).map((row, i) => (
+          <Box key={i} sx={{ display: "flex" }}>
+            {row.slice(0, width).map((cell, j) => (
+              <Paper
+                key={j}
+                elevation={6}
+                sx={{
+                  flex: 1,
+                  aspectRatio: '1 / 1',
+                  m: 0.1,
+                  background: getTileColor(cell),
+                  color: cell > 4 ? "#f9f6f2" : "#776e65",
                   fontSize: 40,
                   fontWeight: "bold",
-                  color: cell > 4 ? "#f9f6f2" : "#776e65",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  padding: 0,
+                  borderRadius: 1,
+                  boxSizing: "border-box",
+                  transition: "background 0.2s",
+                  p: 0,
+                  minWidth: 0,
+                  ":hover": {
+                    background: cell > 0 ? "#f2b179" : "#cdc1b4",
+                    cursor: "pointer",
+                  },
+                  position: "relative"
                 }}
-                onBlur={e => handleChange(i, j, e.target.innerText, e)}
-                onKeyDown={e => {
-                  // Prevent a-z, negative, and non-numeric input
-                  if (
-                    (e.key.length === 1 && !/[0-9]/.test(e.key)) ||
-                    e.key === '-' ||
-                    e.key === 'e'
-                  ) {
-                    e.preventDefault();
-                  }
-                  if (e.key === 'Enter') {
-                    e.preventDefault();
-                    e.target.blur();
-                  }
-                }}
-                dangerouslySetInnerHTML={{ __html: cell }}
-              />
-            </Paper>
-          ))}
-        </Box>
-      ))}
-    </Box>
+              >
+                {cell === treasureNumber && (
+                  <img src={treasureIcon} alt="Treasure" style={{ top: 0, right: 0, width: '20%', height: '20%', padding: '10px', display: 'block', position: 'absolute', margin: '0 auto 12px auto' }} />
+                )}
+                <div
+                  contentEditable
+                  suppressContentEditableWarning
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    outline: "none",
+                    border: "none",
+                    background: IsMinDistance(i + 1, j + 1) ? "#61dafb" : "transparent",
+                    textAlign: "center",
+                    fontSize: 40,
+                    fontWeight: "bold",
+                    color: cell > 4 ? "#f9f6f2" : "#776e65",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    padding: 0,
+                  }}
+                  onBlur={e => handleChange(i, j, e.target.innerText, e)}
+                  onKeyDown={e => {
+                    if (
+                      (e.key.length === 1 && !/[0-9]/.test(e.key)) ||
+                      e.key === '-' ||
+                      e.key === 'e'
+                    ) {
+                      e.preventDefault();
+                    }
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      e.target.blur();
+                    }
+                  }}
+                  dangerouslySetInnerHTML={{ __html: cell }}
+                />
+              </Paper>
+            ))}
+          </Box>
+        ))}
+      </Box>
+      <BoardHistoryPanel onLoadBoard={handleLoadBoard} />
+    </>
   );
 }

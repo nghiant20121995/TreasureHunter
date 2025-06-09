@@ -1,6 +1,15 @@
+using MongoDB.Driver;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+var connectionStr = builder.Configuration.GetConnectionString("Mongo");
+builder.Services.AddSingleton<IMongoClient, MongoClient>(e => new MongoClient(connectionStr));
+builder.Services.AddScoped((serviceProvider) =>
+{
+    var client = serviceProvider.GetRequiredService<IMongoClient>();
+    return client.GetDatabase("TreasureHunter");
+});
 
 builder.Services.AddControllers();
 

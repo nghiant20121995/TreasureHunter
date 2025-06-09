@@ -25,19 +25,6 @@ Bạn hãy viết code C# (backend) và React (frontend, ưu tiên dùng thư vi
 
 Hải tặc đang ở hòn đảo (1:1) - hàng 1 cột 1 và đã có sẵn chìa khoá số 0. Với việc cần tiết kiệm nhiên liệu để trở về, hãy tính lượng nhiên liệu ít nhất để lấy được kho báu. Biết rằng luôn có đường dẫn đến kho báu.
 
-## Giải thích cách giải bài toán
-
-Để giải quyết bài toán tìm lượng nhiên liệu tối thiểu để lấy được kho báu, em đã thực hiện như sau:
-
-- Em xây dựng một phương thức đệ quy có tên là `CalculateMinFuelConsumed`.
-- Phương thức này sẽ duyệt qua tất cả các đường đi có thể từ vị trí xuất phát đến vị trí kho báu trên ma trận.
-- Ở mỗi bước, hàm sẽ tính toán lượng nhiên liệu tiêu tốn khi di chuyển từ đảo hiện tại sang các đảo tiếp theo hợp lệ (theo quy tắc đề bài: chỉ đi đến các rương có số lớn hơn và phải theo thứ tự từ nhỏ đến lớn).
-- Khi đến được vị trí kho báu, hàm sẽ lưu lại tổng lượng nhiên liệu đã tiêu tốn cho đường đi đó.
-- Sau khi duyệt hết tất cả các đường đi hợp lệ, em lọc ra kết quả có lượng nhiên liệu tiêu tốn nhỏ nhất.
-- Kết quả cuối cùng là lượng nhiên liệu tối ưu để lấy được kho báu.
-
-Cách làm này đảm bảo tìm được đáp án đúng vì duyệt hết mọi khả năng, tuy nhiên với ma trận lớn có thể cần tối ưu thêm về thuật toán để tăng tốc độ xử lý.
-
 #### Input:
 - 3 số nguyên dương n, m, p (1 <= n, m <= 500 , 1 <= p <= n*m) – lần lượt là số hàng, số cột của ma trận và số p – số loại rương có thể có trên ma trận
 - Ma trận n hàng m cột, mỗi vị trí là một số nguyên biểu thị ma trận kho báu : a[i][j] (1 <= a[i][j] <= p) là số thứ tự của rương trong mỗi hòn đảo. Và chỉ có một hòn đảo chứa rương đánh số p.
@@ -79,8 +66,23 @@ p: 12
 9 10 11 12
 Output: 11
 ```
+---
+
+## Giải thích cách giải bài toán
+
+Để giải quyết bài toán tìm lượng nhiên liệu tối thiểu để lấy được kho báu, em đã thực hiện như sau:
+
+- Em xây dựng một phương thức đệ quy có tên là `CalculateMinFuelConsumed`.
+- Phương thức này sẽ duyệt qua tất cả các đường đi có thể từ vị trí xuất phát đến vị trí kho báu trên ma trận.
+- Ở mỗi bước, hàm sẽ tính toán lượng nhiên liệu tiêu tốn khi di chuyển từ đảo hiện tại sang các đảo tiếp theo hợp lệ (theo quy tắc đề bài: chỉ đi đến các rương có số lớn hơn và phải theo thứ tự từ nhỏ đến lớn).
+- Khi đến được vị trí kho báu, hàm sẽ lưu lại tổng lượng nhiên liệu đã tiêu tốn cho đường đi đó.
+- Sau khi duyệt hết tất cả các đường đi hợp lệ, em lọc ra kết quả có lượng nhiên liệu tiêu tốn nhỏ nhất.
+- Kết quả cuối cùng là lượng nhiên liệu tối ưu để lấy được kho báu.
+
+Cách làm này đảm bảo tìm được đáp án đúng vì duyệt hết mọi khả năng, tuy nhiên với ma trận lớn có thể cần tối ưu thêm về thuật toán để tăng tốc độ xử lý.
 
 ---
+
 ## Ghi chú
 - Đảm bảo backend chạy trước khi thao tác trên frontend.
 - Khi nhập ma trận, cần nhập đúng số hàng (n), số cột (m) và số loại rương (p) theo yêu cầu đề bài.

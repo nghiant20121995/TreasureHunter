@@ -45,7 +45,7 @@ namespace WebApplication1.Controllers
 
             var newBoard = new Board()
             {
-                Map = JsonSerializer.Serialize(req.IsLands),
+                Map = JsonSerializer.Serialize(dicChest),
                 Distances = distances,
                 TreasureNumber = req.TreasureNumber
             };

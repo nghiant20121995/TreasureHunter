@@ -77,45 +77,12 @@ Output: 11
 
 ## Hướng dẫn cài đặt và chạy dự án
 
-### 1. Cài đặt Backend (.NET 8)
-
-1. Cài đặt .NET 8 SDK từ https://dotnet.microsoft.com/en-us/download/dotnet/8.0
-2. Mở terminal, di chuyển vào thư mục backend (hoặc nơi chứa mã nguồn backend):
-   ```sh
-   cd <thu-muc-backend>
-   ```
-3. Khôi phục các package:
-   ```sh
-   dotnet restore
-   ```
-4. Chạy ứng dụng backend trên cổng 8386:
-   ```sh
-   dotnet run --urls "http://localhost:8386"
-   ```
-   > Lưu ý: Đảm bảo API chạy trên http://localhost:8386
-
-### 2. Cài đặt Frontend (React + Material-UI)
-
-1. Cài đặt Node.js phiên bản 18 từ https://nodejs.org/en/download/releases
-2. Mở terminal, di chuyển vào thư mục frontend:
-   ```sh
-   cd frontend
-   ```
-3. Cài đặt các package:
-   ```sh
-   npm install
-   ```
-4. Chạy ứng dụng frontend:
-   ```sh
-   npm start
-   ```
-5. Truy cập ứng dụng tại http://localhost:3000
-
-### 3. Cấu hình kết nối API
-
-- Đảm bảo file cấu hình hoặc các lệnh gọi API trong frontend trỏ đúng về http://localhost:8386
-- Nếu thay đổi cổng backend, cần sửa lại endpoint trong mã nguồn React cho khớp.
-
+- Mở terminal tại thư mục chứa file docker-compose.yml.
+- Chạy lệnh sau:
+- docker compose up --build
+- Docker sẽ tự động build và khởi động cả frontend và backend.
+- Sau khi hoàn tất, truy cập frontend tại: http://localhost:1006
+- API backend sẽ chạy tại: http://localhost:8386/api/ping
 ---
 
 ## Ghi chú

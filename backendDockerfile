@@ -1,0 +1,21 @@
+# Use Alpine-based .NET 8 SDK for building
+FROM mcr.microsoft.com/dotnet/sdk:8.0-alpine AS build
+WORKDIR /app
+
+COPY ./backend/ .
+# Copy and restore dependencies
+RUN dotnet restore ./TreasureHunter.API.csproj
+RUN dotnet publish ./TreasureHunter.API.csproj -c Release -o /out --no-restore --self-contained false
+
+# Use Alpine-based .NET 8 runtime for running
+FROM mcr.microsoft.com/dotnet/aspnet:8.0-alpine AS runtime
+WORKDIR /app
+
+# Copy the published output
+COPY --from=build /out .
+
+# Expose the port
+EXPOSE 8080
+
+# Set the entry point
+ENTRYPOINT ["dotnet", "TreasureHunter.API.dll"]

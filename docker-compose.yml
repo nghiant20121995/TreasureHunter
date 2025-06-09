@@ -1,0 +1,48 @@
+version: '1.0.0'
+services:
+  mongo:
+    image: mvertes/alpine-mongo:latest
+    ports:
+      - "10625:27017"
+    healthcheck:
+      test: ["CMD", "mongo", "--eval", "db.adminCommand('ping')"]
+      interval: 30s
+      retries: 3
+      start_period: 10s
+      timeout: 5s
+    volumes:
+      - treasure:/app/treasure/mongodb
+    networks:
+      treasure-private-zone:
+        aliases:
+          - mongo-db
+  treasure-frontend:
+    build:
+      context: .
+      dockerfile: ./frontendDockerfile
+    ports:
+      - "1006:3000"
+    volumes:
+      - treasure:/app/treasure/frontend
+    depends_on:
+      mongo:
+        condition: service_healthy
+    networks:
+      - treasure-private-zone
+  treasure-backend:
+    build:
+      context: .
+      dockerfile: ./backendDockerfile
+    ports:
+      - "8386:8080"
+    volumes:
+      - treasure:/app/treasure/backend
+    depends_on:
+      mongo:
+        condition: service_healthy
+    networks:
+      - treasure-private-zone
+volumes: 
+  treasure:
+networks:
+  treasure-private-zone:
